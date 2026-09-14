@@ -1,0 +1,24 @@
+{
+  "agent_name": "analyst_agent",
+  "description": "Агент-Аналитик: разбирает собранные артефакты, находит признаки фишинга, считает хэши и выносит вердикт",
+  "model": {
+    "name": "Qwen3.8-27B",
+    "temperature": 0.3
+  },
+  "prompt_file": "analyst_system.md",
+  "tools": [
+    "render_page",
+    "extract_links",
+    "download_file",
+    "unpack_attachment",
+    "extract_qr",
+    "eval_js",
+    "run_shell",
+    "extract_document",
+    "render_pdf_to_png",
+    "analyze_snippet",
+    "analyze_screenshot",
+    "hash_artifacts"
+  ],
+  "verbose": true
+}

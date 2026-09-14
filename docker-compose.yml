@@ -1,0 +1,75 @@
+name: threat-intel
+
+services:
+  # ============================= Контейнер 1 =============================
+  # Чистая зона / Brain: LangGraph-агенты + LLM/VLM-клиент + SQLite.
+  # Единственный, кто получает AI_API_KEY из .env. Опасный код НЕ исполняет.
+  agents_service:
+    image: threat-agents:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    container_name: threat_agents
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: true
+    environment:
+      - SERVICE_ROLE=ai_agents
+      - SANDBOX_URL=http://sandbox_service:8400
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Код (dev-маунт; в проде — собрать COPY в Dockerfile.agent)
+      - ./agents:/app/agents
+      - ./core:/app/core
+      - ./tools:/app/tools
+      - ./configs:/app/configs
+      - ./prompts:/app/prompts
+      - ./test_fixtures:/app/test_fixtures
+      - ./test_html:/app/test_html:ro
+      - ./main.py:/app/main.py
+      - data_volume:/app/data   # общий том: БД + артефакты
+    networks:
+      - app_network
+    command: python main.py
+
+  # ============================= Контейнер 2 =============================
+  # Грязная зона / Песочница: рендер HTML/JS (Playwright), QR, распаковка
+  # вложений. НЕТ env_file (никаких секретов), НЕТ ports (не виден с хоста),
+  # непривилегированный пользователь, сброс caps, RO-ФС.
+  sandbox_service:
+    image: threat-sandbox:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.sandbox
+    container_name: threat_sandbox
+    restart: unless-stopped
+    environment:
+      - SERVICE_ROLE=sandbox_service
+      - SANDBOX_TIMEOUT=30
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./sandbox:/srv/sandbox/sandbox:ro
+      - data_volume:/app/data   # только артефакты; командного тома с проектом НЕТ
+    # НЕ добавляем env_file — песочница не должна видеть AI_API_KEY
+    networks:
+      - app_network
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:size=256M
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1g
+
+volumes:
+  data_volume:
+    # в dev можно заменить на bind: ./data:/app/data, если нужно видеть артефакты с хоста
+networks:
+  app_network:
+    driver: bridge

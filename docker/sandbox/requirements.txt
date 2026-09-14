@@ -1,0 +1,20 @@
+# Пакеты для контейнера-песочницы (добавляются поверх официального playwright-образа)
+fastapi>=0.111.0
+uvicorn>=0.30.0
+python-multipart>=0.0.9
+Pillow>=10.0.0
+# playwright — Python-обёртка. ВАЖНО: версия должна совпадать с базовым образом
+# mcr.microsoft.com/playwright/python:v1.49.0-noble (иначе браузеры не найдутся).
+playwright==1.49.0
+
+# Извлечение текста/ссылок из документов (PDF, Office, письма) в Markdown
+# [pdf] — обязательный доп. пакет для разбора PDF (pdfminer.six)
+markitdown[pdf]>=0.1.0
+
+# Рендер PDF -> PNG (для визуального анализа через VLM)
+PyMuPDF>=1.24.0
+# Декодирование QR-кодов (требует системную библиотеку libzbar0, см. Dockerfile)
+pyzbar>=0.1.9
+# HTTP-клиент для скачивания файлов по ссылкам (сервис downloader)
+httpx>=0.27.0
+# Рендер Office-документов -> изображения требует libreoffice (ставится в Dockerfile), не тут

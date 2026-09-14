@@ -1,0 +1,21 @@
+# Образ контейнера-агента (Чистая зона / Brain)
+# Легковесный: Python + LangGraph/LangChain + LLM-клиент.
+# НЕТ браузера, НЕТ песочницы. Единственный, кто видит AI_API_KEY из .env.
+FROM python:3.11-slim
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY core/ ./core/
+COPY agents/ ./agents/
+COPY tools/ ./tools/
+COPY configs/ ./configs/
+COPY prompts/ ./prompts/
+COPY main.py .
+
+CMD ["python", "main.py"]

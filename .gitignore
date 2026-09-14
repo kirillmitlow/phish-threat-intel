@@ -1,0 +1,30 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments
+.env
+.venv/
+env/
+venv/
+ENV/
+
+# Testing & tool caches
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# Project runtime data & volumes
+data/
+artifacts/
+
+# Dumps & archives
+*.zip
+*.tar.gz
+test_html/
+
+# Tooling & scratch
+.hermes/

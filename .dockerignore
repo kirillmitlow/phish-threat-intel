@@ -1,0 +1,20 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+.git/
+.gitignore
+.env
+*.log
+
+# Артефакты песочницы/локальные данные
+data/
+artifacts/
+
+# Лабораторные файлы песочницы (не попадают в образ production)
+docker/sandbox/__pycache__/
+sandbox/__pycache__/

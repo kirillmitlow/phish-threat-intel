@@ -1,0 +1,24 @@
+{
+  "agent_name": "collector_agent",
+  "description": "Агент-Сборщик: собирает максимум данных от стартовой точки (ссылки, редиректы, вложения, файлы по ссылкам, QR, скрытое в JS, документы)",
+  "model": {
+    "name": "Qwen3.8-27B",
+    "temperature": 0.3
+  },
+  "prompt_file": "collector_system.md",
+  "tools": [
+    "render_page",
+    "extract_links",
+    "download_file",
+    "unpack_attachment",
+    "extract_qr",
+    "eval_js",
+    "run_shell",
+    "extract_document",
+    "render_pdf_to_png",
+    "analyze_snippet",
+    "analyze_screenshot",
+    "hash_artifacts"
+  ],
+  "verbose": true
+}
